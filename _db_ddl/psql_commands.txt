@@ -1,0 +1,48 @@
+# Enter the db
+psql -h 127.0.0.1 -U app -d movies_database
+
+# EXISTS
+\q
+
+# All tables
+SELECT * FROM INFORMATION_SCHEMA.TABLES;
+
+# Execute the file
+psql -h 127.0.0.1 -U app -d movies_database -f movies_database.ddl
+
+### Create
+psql -h 127.0.0.1 -U app -d movies_database -f _db_ddl/ddl_movies_database.ddl
+
+### Truncate
+psql -h 127.0.0.1 -U app -d movies_database -f _db_ddl/ddl_truncate.ddl
+
+### Drop
+psql -h 127.0.0.1 -U app -d movies_database -f _db_ddl/ddl_drop.ddl
+
+
+##############################################
+# Operations time
+\timing on
+
+# Copy to csv
+\copy (select * from content.film_work) to '/output.csv' with csv 
+
+# Delete data from table
+TRUNCATE content.film_work; 
+
+# Delete index
+DROP INDEX content.film_work_creation_date_idx; 
+
+# Copy data from csv 
+\copy content.film_work from '/output.csv' with delimiter ',' NULL ''; 
+
+
+
+
+
+###############################
+Команды \di+ и \diS предоставляют полную информацию об индексах, 
+включая размер и комментарии, при этом \diS исключает системные индексы. 
+Команды \d доступны только в psql
+
+
