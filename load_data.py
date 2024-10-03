@@ -29,7 +29,8 @@ class PostgresSaver:
         self._cache = {"table": None, "args_names": None, "args_values": None}
 
     def get_cache(self, table: str) -> dict[str, str]:
-        """Метод, возвращающий данные по обрабатываемой таблице БД"""
+        """Метод, возвращающий данные для SQL запроса"""
+
         data_cls = self.table_data[table]
         args_tuple = data_cls.__dict__["__match_args__"]
         _cache_dict = {
@@ -43,34 +44,43 @@ class PostgresSaver:
         self, data: Generator[tuple[str, list[sqlite3.Row]], None, None]
     ):
         """Метод загрузки данных в Postgres"""
+
         schema = self.schema
-        cnt = 0
+
         with closing(
             self.pg_connection.cursor(row_factory=dict_row)
         ) as pg_cursor:
             for table, batch in data:
-                # print(table)
 
                 if self._cache["table"] != table:
                     self._cache.update(**self.get_cache(table))
                     args_names = self._cache["args_names"]
                     args_values = self._cache["args_values"]
-                query = f"INSERT INTO {schema}{table} \
-                            ({args_names}) \
-                            VALUES ({args_values}) \
-                            ON CONFLICT (id) DO NOTHING"
-                # print(query)
+                    logger.debug(
+                        "Запущена загрузка данных для таблицы '%s'", table
+                    )
+                    counter = 1
+                query = (
+                    f"INSERT INTO {schema}{table} "
+                    f"({args_names}) "
+                    f"VALUES ({args_values}) "
+                    f"ON CONFLICT (id) DO NOTHING"
+                )
+                logger.debug("Сформирован SQL запрос:\n'%s'", query)
                 batch_as_tuples = [astuple(row) for row in batch]
                 try:
                     pg_cursor.executemany(query, batch_as_tuples)
-                except Exception as e:
-                    print(e)
-                    print()
-                    # pass
+                except Exception as err:
+                    logger.error(
+                        "Произошла ошибка при загрузке данных: '%s'", err
+                    )
 
                 self.pg_connection.commit()
-                cnt += 1
+                logger.info(
+                    "Загружены данные: таблица '%s', партия %s",
+                    table,
+                    counter,
+                )
+                counter += 1
 
-        print()
-        print(cnt)
         return None

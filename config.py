@@ -1,3 +1,4 @@
+import logging
 import os
 
 from dotenv import load_dotenv
@@ -34,4 +35,27 @@ DB_SCHEMA = {
     "sqlite": "",
 }
 
-BATCH_SIZE = 1_000
+BATCH_SIZE = 700
+
+logging.basicConfig(
+    level=logging.INFO,
+    # level=logging.DEBUG,
+    format=(
+        "#%(levelname)-8s [%(asctime)s] - %(filename)s:"
+        "%(lineno)d - %(name)s - %(message)s"
+    ),
+)
+
+
+# format = (
+#     "#%(levelname)-8s [%(asctime)s] - %(filename)s:"
+#     "%(lineno)d - %(name)s - %(message)s"
+# )
+
+# formatter = logging.Formatter(fmt=format)
+
+logger = logging.getLogger(__name__)
+
+# stderr_handler = logging.StreamHandler()
+# stderr_handler.setFormatter(formatter)
+# logger.addHandler(stderr_handler)

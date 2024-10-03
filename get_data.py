@@ -31,6 +31,12 @@ class SQLiteLoader:
         with closing(self.sqlite_connection.cursor()) as sqlite_cursor:
             for table in self.tables:
                 data_cls = self.table_data[table]
-                sqlite_cursor.execute(f"SELECT * FROM {self.schema}{table}")
+                logger.debug(
+                    "Запущено получение данных из таблицы '%s'", table
+                )
+                sqlite_cursor.execute(
+                    query := f"SELECT * FROM {self.schema}{table}"
+                )
+                logger.debug("Сформирован SQL запрос:\n'%s'", query)
                 while batch := sqlite_cursor.fetchmany(self.batch_size):
                     yield (table, [data_cls(**row) for row in batch])

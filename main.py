@@ -36,10 +36,12 @@ if __name__ == "__main__":
         )
     ) as pg_connection:
         start_time = perf_counter()
+
         load_from_sqlite(sqlite_connection, pg_connection)
 
-        test_transfer(sqlite_connection, pg_connection)
+        test_transfer(sqlite_connection, pg_connection, TABLES)
+
         end_time = perf_counter()
-        print(f"\nВремя выполнения: {end_time - start_time}")
 
     print("🎉 Данные успешно перенесены !!!")
+    print(f"\nВремя выполнения: {end_time - start_time}")
