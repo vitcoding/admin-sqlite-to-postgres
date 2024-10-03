@@ -38,8 +38,9 @@ DB_SCHEMA = {
 BATCH_SIZE = 700
 
 logging.basicConfig(
-    level=logging.INFO,
+    # level=logging.INFO,
     # level=logging.DEBUG,
+    level=logging.ERROR,
     format=(
         "#%(levelname)-8s [%(asctime)s] - %(filename)s:"
         "%(lineno)d - %(name)s - %(message)s"

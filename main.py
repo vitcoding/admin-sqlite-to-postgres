@@ -21,11 +21,13 @@ def load_from_sqlite(
     sqllite_connection: sqlite3.Connection, pg_connection: psycopg.Connection
 ):
     """Основной метод загрузки данных из SQLite в Postgres"""
+
     postgres_saver = PostgresSaver(pg_connection)
     sqlite_loader = SQLiteLoader(sqllite_connection)
 
-    data = sqlite_loader.load_data()
-    postgres_saver.save_all_data(data)
+    for table in TABLES:
+        data = sqlite_loader.load_data(table)
+        postgres_saver.save_all_data(table, data)
 
 
 if __name__ == "__main__":
@@ -38,7 +40,6 @@ if __name__ == "__main__":
         start_time = perf_counter()
 
         load_from_sqlite(sqlite_connection, pg_connection)
-
         test_transfer(sqlite_connection, pg_connection, TABLES)
 
         end_time = perf_counter()
