@@ -16,6 +16,7 @@ dsl = {
 
 TABLES = (
     # "error_table",
+    ###
     "film_work",
     "genre",
     "person",
@@ -40,9 +41,9 @@ DB_SCHEMA = {
 BATCH_SIZE = 700
 
 logging.basicConfig(
-    # level=logging.INFO,
     # level=logging.DEBUG,
-    level=logging.ERROR,
+    level=logging.INFO,
+    # level=logging.ERROR,
     format=(
         "#%(levelname)-8s [%(asctime)s] - %(filename)s:"
         "%(lineno)d - %(name)s - %(message)s"

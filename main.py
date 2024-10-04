@@ -30,11 +30,11 @@ def load_from_sqlite(
         postgres_saver.save_all_data(table, data)
 
     errors_total += sqlite_loader.errors + postgres_saver.errors
-    logger.error("Количество ошибок 'sqlite_loader': %s", sqlite_loader.errors)
-    logger.error(
-        "Количество ошибок 'postgres_saver': %s", postgres_saver.errors
+    logger.debug("Количество ошибок 'sqlite_loader': %s", sqlite_loader.errors)
+    logger.debug(
+        "Количество ошибок 'postgres_saver': %s\n", postgres_saver.errors
     )
-    logger.error("Всего ошибок 'sqlite_loader': %s", errors_total)
+    logger.info("Всего ошибок: %s\n", errors_total)
 
     if errors_total > 0:
         return False

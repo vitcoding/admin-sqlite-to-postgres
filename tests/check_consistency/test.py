@@ -6,7 +6,7 @@ import psycopg
 from psycopg.rows import dict_row
 
 from config import *
-from get_data import validate_data
+from validate import validate_data
 
 # from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
 
@@ -32,6 +32,7 @@ def test_transfer(
         pg_schema = DB_SCHEMA["postgres"]
 
         for table in tables:
+            # for table in ("film_work",):
             data_cls = TABLE_DATA[table]
 
             sqlite_cursor.execute(f"SELECT * FROM {sqlite_schema}{table}")
@@ -40,19 +41,38 @@ def test_transfer(
                 original_table_batch = [
                     data_cls(**validate_data(row)) for row in batch
                 ]
-                ids = [row.id for row in original_table_batch]
+                logger.debug(
+                    "original_table_batch: \n%s\n", original_table_batch
+                )
 
+                #####
+                logger.info(
+                    "original_table_batch: \n%s\n", original_table_batch[0]
+                )
+
+                ids = [row.id for row in original_table_batch]
+                # logger.debug("ids: \n%s\n", ids)
                 pg_cursor.execute(
-                    f"SELECT * FROM {pg_schema}{table} WHERE id = ANY(%s)",
-                    [ids],
+                    f"SELECT * FROM {pg_schema}{table} "
+                    + "WHERE id = ANY(%s)",
+                    (ids,),
                 )
                 transferred_table_batch = [
-                    data_cls(**validate_data(row))
-                    for row in pg_cursor.fetchall()
+                    data_cls(**row) for row in pg_cursor.fetchall()
                 ]
+                logger.debug(
+                    "transferred_table_batch: \n%s\n", transferred_table_batch
+                )
+
+                #####
+                logger.info(
+                    "transferred_table_batch: \n%s\n",
+                    transferred_table_batch[0],
+                )
 
                 assert len(original_table_batch) == len(
                     transferred_table_batch
                 )
                 assert original_table_batch == transferred_table_batch
-            logger.debug("Тесты для таблицы '%s' пройдены", table)
+
+            logger.info("Тесты для таблицы '%s' пройдены", table)

@@ -1,37 +1,10 @@
 import sqlite3
 from contextlib import closing
-from typing import Any, Generator
-from uuid import UUID
-
-from dateutil.parser import parse
+from typing import Generator
 
 from config import *
 from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
-
-
-def validate_data(row: dict[str, Any]) -> dict[str, Any]:
-    """функция валидации данных таблиц БД"""
-
-    transformed_row = {}
-    for key, value in dict(row).items():
-        match key:
-            case "id":
-                if isinstance(value, str):
-                    value = UUID(value)
-            case "creation_date":
-                if isinstance(value, str):
-                    value = parse(value)
-            case "created_at":
-                key = "created"
-                if isinstance(value, str):
-                    value = parse(value)
-            case "updated_at":
-                key = "modified"
-                if isinstance(value, str):
-                    value = parse(value)
-        transformed_row[key] = value
-        logger.debug("Transformed_row:\n'%s'", transformed_row)
-    return transformed_row
+from validate import validate_data
 
 
 class SQLiteLoader:
