@@ -15,6 +15,7 @@ dsl = {
 }
 
 TABLES = (
+    # "error_table",
     "film_work",
     "genre",
     "person",
@@ -33,6 +34,7 @@ TABLE_DATA = {
 DB_SCHEMA = {
     "postgres": "content.",
     "sqlite": "",
+    # "sqlite": "user.",
 }
 
 BATCH_SIZE = 700

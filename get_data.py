@@ -1,9 +1,37 @@
 import sqlite3
 from contextlib import closing
-from typing import Generator
+from typing import Any, Generator
+from uuid import UUID
+
+from dateutil.parser import parse
 
 from config import *
 from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
+
+
+def validate_data(row: dict[str, Any]) -> dict[str, Any]:
+    """функция валидации данных таблиц БД"""
+
+    transformed_row = {}
+    for key, value in dict(row).items():
+        match key:
+            case "id":
+                if isinstance(value, str):
+                    value = UUID(value)
+            case "creation_date":
+                if isinstance(value, str):
+                    value = parse(value)
+            case "created_at":
+                key = "created"
+                if isinstance(value, str):
+                    value = parse(value)
+            case "updated_at":
+                key = "modified"
+                if isinstance(value, str):
+                    value = parse(value)
+        transformed_row[key] = value
+        logger.debug("Transformed_row:\n'%s'", transformed_row)
+    return transformed_row
 
 
 class SQLiteLoader:
@@ -20,6 +48,7 @@ class SQLiteLoader:
         self.schema = schema
         self.table_data = table_data
         self.batch_size = batch_size
+        self.errors = 0
 
     def load_data(
         self,
@@ -27,13 +56,40 @@ class SQLiteLoader:
     ) -> Generator[tuple[str, list[sqlite3.Row]], None, None]:
         """Метод получения данных из SQLite"""
 
+        data_cls = self.table_data.get(table, None)
+        if data_cls is None:
+            return False
         self.sqlite_connection.row_factory = sqlite3.Row
         with closing(self.sqlite_connection.cursor()) as sqlite_cursor:
-            data_cls = self.table_data[table]
             logger.debug("Запущено получение данных из таблицы '%s'", table)
-            sqlite_cursor.execute(
-                query := f"SELECT * FROM {self.schema}{table}"
-            )
+            try:
+                sqlite_cursor.execute(
+                    query := f"SELECT * FROM {self.schema}{table}"
+                )
+            except (
+                sqlite3.OperationalError,
+                # KeyError,
+            ) as err:
+                logger.error(
+                    "Ошибка %s при чтении данных (таблица %s): \n'%s'",
+                    type(err),
+                    table,
+                    err,
+                )
+                self.errors += 1
+                # raise SQLiteTableReadError("")
             logger.debug("Сформирован SQL запрос:\n'%s'", query)
+
             while batch := sqlite_cursor.fetchmany(self.batch_size):
-                yield [data_cls(**row) for row in batch]
+
+                # logger.error("Row:\n'%s'", dict(row))
+
+                try:
+                    yield [data_cls(**validate_data(row)) for row in batch]
+                except (TypeError,) as err:
+                    logger.error(
+                        "Ошибка %s при получении данных: \n'%s'",
+                        type(err),
+                        err,
+                    )
+                    self.errors += 1

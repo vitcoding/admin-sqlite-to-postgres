@@ -8,7 +8,10 @@ from psycopg.rows import dict_row
 
 from config import *
 from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
-from tests.check_consistency.test import *
+
+# from get_data import SQLiteTableReadError
+
+# from tests.check_consistency.test import *
 
 # from psycopg import ClientCursor
 # from psycopg import connection as _connection
@@ -26,13 +29,16 @@ class PostgresSaver:
         self.pg_connection = pg_connection
         self.schema = schema
         self.table_data = table_data
+        self.errors = 0
 
     def save_all_data(
         self, table: str, data: Generator[list[sqlite3.Row], None, None]
     ):
         """Метод загрузки данных в Postgres"""
 
-        data_cls = self.table_data[table]
+        data_cls = self.table_data.get(table, None)
+        if data_cls is None:
+            return False
         args_tuple = data_cls.__dict__["__match_args__"]
         args_names = ", ".join(args_tuple)
         args_values = ", ".join(["%s"] * len(args_tuple))
@@ -41,6 +47,8 @@ class PostgresSaver:
         with closing(
             self.pg_connection.cursor(row_factory=dict_row)
         ) as pg_cursor:
+            if not isinstance(data, Generator):
+                raise
             logger.debug("Запущена загрузка данных для таблицы '%s'", table)
             query = (
                 f"INSERT INTO {self.schema}{table} "
@@ -52,13 +60,27 @@ class PostgresSaver:
 
             for batch in data:
                 counter += 1
+
+                # logger.debug("Batch:\n'%s'", batch)
+
                 batch_as_tuples = [astuple(row) for row in batch]
                 try:
                     pg_cursor.executemany(query, batch_as_tuples)
-                except Exception as err:
+                except (
+                    psycopg.errors.UndefinedTable,
+                    psycopg.errors.UndefinedColumn,
+                    psycopg.errors.ForeignKeyViolation,
+                ) as err:
                     logger.error(
-                        "Произошла ошибка при загрузке данных: '%s'", err
+                        "Ошибка %s при загрузке данных "
+                        "(таблица '%s', партия %s):"
+                        "\n'%s'\n",
+                        type(err),
+                        table,
+                        counter,
+                        err,
                     )
+                    self.errors += 1
 
                 self.pg_connection.commit()
                 logger.info(
@@ -67,4 +89,4 @@ class PostgresSaver:
                     counter,
                 )
 
-        return None
+        return True

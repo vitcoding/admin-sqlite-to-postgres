@@ -1,22 +1,26 @@
 import sqlite3
 from contextlib import closing
+from typing import Iterable
 
 import psycopg
 from psycopg.rows import dict_row
 
 from config import *
-from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
+from get_data import validate_data
 
+# from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
+
+# import zoneinfo
 # from psycopg import ClientCursor
 # from psycopg import connection as _connection
 # from dataclasses import astuple, dataclass
-# from typing import Generator
+# from dateutil.tz import tzutc
 
 
 def test_transfer(
     sqlite_connection: sqlite3.Connection,
     pg_connection: psycopg.Connection,
-    tables: list[str],
+    tables: Iterable[str],
 ):
     """Функция тестирования корректности переноса данных"""
 
@@ -33,7 +37,9 @@ def test_transfer(
             sqlite_cursor.execute(f"SELECT * FROM {sqlite_schema}{table}")
 
             while batch := sqlite_cursor.fetchmany(BATCH_SIZE):
-                original_table_batch = [data_cls(**dict(row)) for row in batch]
+                original_table_batch = [
+                    data_cls(**validate_data(row)) for row in batch
+                ]
                 ids = [row.id for row in original_table_batch]
 
                 pg_cursor.execute(
@@ -41,7 +47,8 @@ def test_transfer(
                     [ids],
                 )
                 transferred_table_batch = [
-                    data_cls(**row) for row in pg_cursor.fetchall()
+                    data_cls(**validate_data(row))
+                    for row in pg_cursor.fetchall()
                 ]
 
                 assert len(original_table_batch) == len(

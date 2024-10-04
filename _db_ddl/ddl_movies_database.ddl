@@ -71,5 +71,5 @@ CREATE TABLE IF NOT EXISTS person_film_work (
 );
 
 CREATE UNIQUE INDEX 
-    film_work_person_idx 
-    ON person_film_work (film_work_id, person_id);
+    film_work_person_role_idx 
+    ON person_film_work (film_work_id, person_id, role);

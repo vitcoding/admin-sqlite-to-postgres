@@ -12,7 +12,6 @@ from load_data import PostgresSaver
 from tests.check_consistency.test import *
 
 # from dataclasses import astuple, dataclass
-# from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
 # from psycopg import connection as _connection
 # from typing import Generator
 
@@ -22,12 +21,24 @@ def load_from_sqlite(
 ):
     """Основной метод загрузки данных из SQLite в Postgres"""
 
-    postgres_saver = PostgresSaver(pg_connection)
     sqlite_loader = SQLiteLoader(sqllite_connection)
+    postgres_saver = PostgresSaver(pg_connection)
+    errors_total = 0
 
     for table in TABLES:
         data = sqlite_loader.load_data(table)
         postgres_saver.save_all_data(table, data)
+
+    errors_total += sqlite_loader.errors + postgres_saver.errors
+    logger.error("Количество ошибок 'sqlite_loader': %s", sqlite_loader.errors)
+    logger.error(
+        "Количество ошибок 'postgres_saver': %s", postgres_saver.errors
+    )
+    logger.error("Всего ошибок 'sqlite_loader': %s", errors_total)
+
+    if errors_total > 0:
+        return False
+    return True
 
 
 if __name__ == "__main__":
@@ -39,10 +50,15 @@ if __name__ == "__main__":
     ) as pg_connection:
         start_time = perf_counter()
 
-        load_from_sqlite(sqlite_connection, pg_connection)
+        transfer = load_from_sqlite(sqlite_connection, pg_connection)
         test_transfer(sqlite_connection, pg_connection, TABLES)
 
         end_time = perf_counter()
+        result = (
+            "В ходе переноса данных возникли ошибки.",
+            "🎉 Данные успешно перенесены !!!",
+        )[transfer]
+        print(result)
 
-    print("🎉 Данные успешно перенесены !!!")
-    print(f"\nВремя выполнения: {end_time - start_time}")
+    execute_time = end_time - start_time
+    logger.info("\nВремя выполнения программы: %s", execute_time)

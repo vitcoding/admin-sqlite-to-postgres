@@ -1,40 +1,32 @@
+# import zoneinfo
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime  # , tzinfo
 from uuid import UUID
 
 from dateutil.parser import parse
 
-
-class PostInitMixin:
-    def __post_init__(self):
-        for item in self.__dict__:
-            if item.endswith("id") and isinstance(self.__dict__[item], str):
-                self.__dict__[item] = UUID(self.__dict__[item])
-            if item.endswith("at") and isinstance(self.__dict__[item], str):
-                self.__dict__[item] = parse(self.__dict__[item])
-            if item.endswith("_date") and isinstance(self.__dict__[item], str):
-                self.__dict__[item] = parse(self.__dict__[item])
+# from dateutil.tz import tzutc
 
 
 @dataclass
-class Genre(PostInitMixin):
+class Genre:
     id: UUID
     name: str
     description: str
-    created_at: datetime
-    updated_at: datetime
+    created: datetime
+    modified: datetime
 
 
 @dataclass
-class Person(PostInitMixin):
+class Person:
     id: UUID
     full_name: str
-    created_at: datetime
-    updated_at: datetime
+    created: datetime
+    modified: datetime
 
 
 @dataclass
-class Filmwork(PostInitMixin):
+class Filmwork:
     id: UUID
     title: str
     description: str
@@ -42,25 +34,25 @@ class Filmwork(PostInitMixin):
     file_path: str
     rating: float
     type: str
-    created_at: datetime
-    updated_at: datetime
+    created: datetime
+    modified: datetime
 
 
 @dataclass
-class GenreFilmwork(PostInitMixin):
+class GenreFilmwork:
     id: UUID
     film_work_id: UUID
     genre_id: UUID
-    created_at: datetime
+    created: datetime
 
 
 @dataclass
-class PersonFilmwork(PostInitMixin):
+class PersonFilmwork:
     id: UUID
     film_work_id: UUID
     person_id: UUID
     role: str
-    created_at: datetime
+    created: datetime
 
 
 if __name__ == "__main__":
@@ -69,7 +61,7 @@ if __name__ == "__main__":
         film_work_id="83af8d01-580a-462e-8c96-2171385935cc",
         person_id="97568425-6959-4b86-b81d-d3198eabfdac",
         role="writer",
-        created_at="2021-06-16 20:14:09.93471+00",
+        created="2021-06-16 20:14:09.93471+00",
     )
 
     filmwork = Filmwork(
@@ -81,8 +73,8 @@ if __name__ == "__main__":
         file_path=None,
         type="movie",
         rating=8.7,
-        created_at="2021-6-16 20:14:09.269541+00",
-        updated_at="2021-6-16 20:14:09.269557+00",
+        created="2021-6-16 20:14:09.269541+00",
+        modified="2021-6-16 20:14:09.269557+00",
     )
 
     print(person)
@@ -91,4 +83,20 @@ if __name__ == "__main__":
 
     print(filmwork)
     print()
+
+    # print(a := datetime(2021, 6, 16, 20, 14, 9, 927616, tzinfo=tzutc()))
+    # print(
+    #     b := datetime(
+    #         2021,
+    #         6,
+    #         16,
+    #         20,
+    #         14,
+    #         9,
+    #         927616,
+    #         tzinfo=zoneinfo.ZoneInfo(key="Etc/UTC"),
+    #     )
+    # )
+    # print(a == b)
+    # print()
     # print(person.__dict__)
