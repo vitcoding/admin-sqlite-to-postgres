@@ -60,6 +60,11 @@ class PostgresSaver:
                 batch_as_tuples = [astuple(row) for row in batch]
                 try:
                     pg_cursor.executemany(query, batch_as_tuples)
+                    logger.info(
+                        "Загружены данные: таблица '%s', партия %s",
+                        table,
+                        counter,
+                    )
                 except (
                     psycopg.errors.UndefinedTable,
                     psycopg.errors.UndefinedColumn,
@@ -77,10 +82,5 @@ class PostgresSaver:
                     self.errors += 1
 
                 self.pg_connection.commit()
-                logger.info(
-                    "Загружены данные: таблица '%s', партия %s",
-                    table,
-                    counter,
-                )
 
         return True
