@@ -9,7 +9,7 @@ from psycopg.rows import dict_row
 from config import *
 from get_data import SQLiteLoader
 from load_data import PostgresSaver
-from tests.check_consistency.test import *
+from tests.check_consistency.test import test_transfer
 
 # from dataclasses import astuple, dataclass
 # from psycopg import connection as _connection
@@ -51,6 +51,9 @@ if __name__ == "__main__":
         start_time = perf_counter()
 
         transfer = load_from_sqlite(sqlite_connection, pg_connection)
+
+        start_tests_time = perf_counter()
+
         test_transfer(sqlite_connection, pg_connection, TABLES)
 
         end_time = perf_counter()
@@ -59,6 +62,12 @@ if __name__ == "__main__":
             "🎉 Данные успешно перенесены !!!",
         )[transfer]
         print(result)
+
+    transfer_time = start_tests_time - start_time
+    logger.debug("\nВремя выполнения переноса данных: %s", transfer_time)
+
+    tests_time = end_time - start_tests_time
+    logger.debug("\nВремя выполнения переноса данных: %s", tests_time)
 
     execute_time = end_time - start_time
     logger.info("\nВремя выполнения программы: %s", execute_time)

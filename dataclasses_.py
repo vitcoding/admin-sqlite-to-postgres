@@ -8,6 +8,31 @@ from dateutil.parser import parse
 # from dateutil.tz import tzutc
 
 
+# @dataclass
+# class ValidateMixin:
+#     def __post_init__(self):
+#         for key in self.__dict__:
+#             value = self.__getattribute__(key)
+#             match key:
+#                 case "id", "film_work_id", "genre_id", "person_id":
+#                     if isinstance(value, str):
+#                         value = UUID(value)
+#                 case "creation_date":
+#                     if isinstance(value, str):
+#                         value = parse(value)
+#                 case "created_at":
+#                     key = "created"
+#                     if isinstance(value, str):
+#                         value = parse(value)
+#                 case "updated_at":
+#                     key = "modified"
+#                     if isinstance(value, str):
+#                         value = parse(value)
+#                 case _:
+#                     key = key
+#                     value = value
+
+
 @dataclass
 class Genre:
     id: UUID

@@ -49,17 +49,15 @@ logging.basicConfig(
         "%(lineno)d - %(name)s - %(message)s"
     ),
 )
-
-
-# format = (
-#     "#%(levelname)-8s [%(asctime)s] - %(filename)s:"
-#     "%(lineno)d - %(name)s - %(message)s"
-# )
-
-# formatter = logging.Formatter(fmt=format)
+file_handler = logging.FileHandler("logs.log")
+format_file = (
+    "#%(levelname)-8s [%(asctime)s] - %(filename)s:"
+    "%(lineno)d - %(name)s - %(message)s"
+)
+formatter_file = logging.Formatter(fmt=format_file)
+file_handler.setFormatter(formatter_file)
 
 logger = logging.getLogger(__name__)
 
-# stderr_handler = logging.StreamHandler()
-# stderr_handler.setFormatter(formatter)
-# logger.addHandler(stderr_handler)
+logger.addHandler(file_handler)
+logger.setLevel(logging.DEBUG)

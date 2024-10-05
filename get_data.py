@@ -29,20 +29,17 @@ class SQLiteLoader:
     ) -> Generator[tuple[str, list[sqlite3.Row]], None, None]:
         """Метод получения данных из SQLite"""
 
+        self.sqlite_connection.row_factory = sqlite3.Row
         data_cls = self.table_data.get(table, None)
         if data_cls is None:
             return False
-        self.sqlite_connection.row_factory = sqlite3.Row
         with closing(self.sqlite_connection.cursor()) as sqlite_cursor:
             logger.debug("Запущено получение данных из таблицы '%s'", table)
             try:
                 sqlite_cursor.execute(
                     query := f"SELECT * FROM {self.schema}{table}"
                 )
-            except (
-                sqlite3.OperationalError,
-                # KeyError,
-            ) as err:
+            except (sqlite3.OperationalError,) as err:
                 logger.error(
                     "Ошибка %s при чтении данных (таблица %s): \n'%s'",
                     type(err),
