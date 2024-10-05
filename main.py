@@ -6,7 +6,7 @@ import psycopg
 from psycopg import ClientCursor
 from psycopg.rows import dict_row
 
-from config import *
+from config import TABLES, dsl, logger
 from get_data import SQLiteLoader
 from load_data import PostgresSaver
 from tests.check_consistency.test import test_transfer

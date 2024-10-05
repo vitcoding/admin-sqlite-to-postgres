@@ -6,7 +6,7 @@ import psycopg
 from psycopg import ClientCursor
 from psycopg.rows import dict_row
 
-from config import *
+from config import BATCH_SIZE, DB_SCHEMA, TABLE_DATA, TABLES, dsl, logger
 from validate import validate_data
 
 

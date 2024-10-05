@@ -6,7 +6,7 @@ from typing import Generator
 import psycopg
 from psycopg.rows import dict_row
 
-from config import *
+from config import DB_SCHEMA, TABLE_DATA, logger
 from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
 
 

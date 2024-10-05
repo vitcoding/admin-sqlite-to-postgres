@@ -2,7 +2,7 @@ import sqlite3
 from contextlib import closing
 from typing import Generator
 
-from config import *
+from config import BATCH_SIZE, DB_SCHEMA, TABLE_DATA, logger
 from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
 from validate import validate_data
 
