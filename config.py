@@ -35,6 +35,7 @@ TABLE_DATA = {
 DB_SCHEMA = {
     "postgres": "content.",
     "sqlite": "",
+    ###
     # "sqlite": "user.",
 }
 
@@ -44,16 +45,17 @@ format_log = (
     "#%(levelname)-8s [%(asctime)s] - %(filename)s:"
     "%(lineno)d - %(name)s - %(message)s"
 )
-
 logging.basicConfig(
-    level=logging.DEBUG,
+    # level=logging.DEBUG,
+    level=logging.INFO,
+    # level=logging.ERROR,
     format=format_log,
 )
-file_handler = logging.FileHandler("logs.log")
-formatter_file = logging.Formatter(fmt=format_log)
-file_handler.setFormatter(formatter_file)
+# file_handler = logging.FileHandler("logs.log")
+# formatter_file = logging.Formatter(fmt=format_log)
+# file_handler.setFormatter(formatter_file)
 
 logger = logging.getLogger(__name__)
 
-logger.addHandler(file_handler)
-logger.setLevel(logging.DEBUG)
+# logger.addHandler(file_handler)
+# logger.setLevel(logging.DEBUG)
