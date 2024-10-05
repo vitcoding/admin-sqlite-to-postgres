@@ -51,6 +51,7 @@ logging.basicConfig(
     # level=logging.ERROR,
     format=format_log,
 )
+
 # file_handler = logging.FileHandler("logs.log")
 # formatter_file = logging.Formatter(fmt=format_log)
 # file_handler.setFormatter(formatter_file)
