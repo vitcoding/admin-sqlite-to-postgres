@@ -11,14 +11,10 @@ from get_data import SQLiteLoader
 from load_data import PostgresSaver
 from tests.check_consistency.test import test_transfer
 
-# from dataclasses import astuple, dataclass
-# from psycopg import connection as _connection
-# from typing import Generator
-
 
 def load_from_sqlite(
     sqllite_connection: sqlite3.Connection, pg_connection: psycopg.Connection
-):
+) -> bool:
     """Основной метод загрузки данных из SQLite в Postgres"""
 
     sqlite_loader = SQLiteLoader(sqllite_connection)
@@ -48,6 +44,7 @@ if __name__ == "__main__":
             **dsl, row_factory=dict_row, cursor_factory=ClientCursor
         )
     ) as pg_connection:
+        logger.info("Программа запущена\n")
         start_time = perf_counter()
 
         transfer = load_from_sqlite(sqlite_connection, pg_connection)
@@ -67,7 +64,7 @@ if __name__ == "__main__":
     logger.debug("\nВремя выполнения переноса данных: %s", transfer_time)
 
     tests_time = end_time - start_tests_time
-    logger.debug("\nВремя выполнения переноса данных: %s", tests_time)
+    logger.debug("\nВремя выполнения тестов: %s", tests_time)
 
     execute_time = end_time - start_time
     logger.info("\nВремя выполнения программы: %s", execute_time)

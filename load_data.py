@@ -9,13 +9,6 @@ from psycopg.rows import dict_row
 from config import *
 from dataclasses_ import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
 
-# from get_data import SQLiteTableReadError
-
-# from tests.check_consistency.test import *
-
-# from psycopg import ClientCursor
-# from psycopg import connection as _connection
-
 
 class PostgresSaver:
     def __init__(
@@ -38,6 +31,7 @@ class PostgresSaver:
 
         data_cls = self.table_data.get(table, None)
         if data_cls is None:
+            self.errors += 1
             return False
         args_tuple = data_cls.__dict__["__match_args__"]
         args_names = ", ".join(args_tuple)
@@ -48,7 +42,9 @@ class PostgresSaver:
             self.pg_connection.cursor(row_factory=dict_row)
         ) as pg_cursor:
             if not isinstance(data, Generator):
-                raise
+                self.errors += 1
+                return False
+
             logger.debug("Запущена загрузка данных для таблицы '%s'", table)
             query = (
                 f"INSERT INTO {self.schema}{table} "
@@ -60,8 +56,6 @@ class PostgresSaver:
 
             for batch in data:
                 counter += 1
-
-                # logger.debug("Batch:\n'%s'", batch)
 
                 batch_as_tuples = [astuple(row) for row in batch]
                 try:

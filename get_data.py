@@ -26,13 +26,15 @@ class SQLiteLoader:
     def load_data(
         self,
         table: str,
-    ) -> Generator[tuple[str, list[sqlite3.Row]], None, None]:
+    ) -> Generator[tuple[str, list[sqlite3.Row]], None, None] | bool:
         """Метод получения данных из SQLite"""
 
         self.sqlite_connection.row_factory = sqlite3.Row
         data_cls = self.table_data.get(table, None)
         if data_cls is None:
+            self.errors += 1
             return False
+
         with closing(self.sqlite_connection.cursor()) as sqlite_cursor:
             logger.debug("Запущено получение данных из таблицы '%s'", table)
             try:
@@ -47,13 +49,10 @@ class SQLiteLoader:
                     err,
                 )
                 self.errors += 1
-                # raise SQLiteTableReadError("")
+
             logger.debug("Сформирован SQL запрос:\n'%s'", query)
 
             while batch := sqlite_cursor.fetchmany(self.batch_size):
-
-                # logger.error("Row:\n'%s'", dict(row))
-
                 try:
                     yield [data_cls(**validate_data(row)) for row in batch]
                 except (TypeError,) as err:

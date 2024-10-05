@@ -40,21 +40,17 @@ DB_SCHEMA = {
 
 BATCH_SIZE = 700
 
-logging.basicConfig(
-    # level=logging.DEBUG,
-    level=logging.INFO,
-    # level=logging.ERROR,
-    format=(
-        "#%(levelname)-8s [%(asctime)s] - %(filename)s:"
-        "%(lineno)d - %(name)s - %(message)s"
-    ),
-)
-file_handler = logging.FileHandler("logs.log")
-format_file = (
+format_log = (
     "#%(levelname)-8s [%(asctime)s] - %(filename)s:"
     "%(lineno)d - %(name)s - %(message)s"
 )
-formatter_file = logging.Formatter(fmt=format_file)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format=format_log,
+)
+file_handler = logging.FileHandler("logs.log")
+formatter_file = logging.Formatter(fmt=format_log)
 file_handler.setFormatter(formatter_file)
 
 logger = logging.getLogger(__name__)
