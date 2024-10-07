@@ -58,7 +58,7 @@ if __name__ == "__main__":
             "В ходе переноса данных возникли ошибки.",
             "🎉 Данные успешно перенесены !!!",
         )[transfer]
-        print(result)
+        logger.info(result)
 
     transfer_time = start_tests_time - start_time
     logger.debug("\nВремя выполнения переноса данных: %s", transfer_time)
