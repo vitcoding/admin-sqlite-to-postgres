@@ -11,7 +11,7 @@ SELECT * FROM INFORMATION_SCHEMA.TABLES;
 psql -h 127.0.0.1 -U app -d movies_database -f movies_database.ddl
 
 ### Create
-psql -h 127.0.0.1 -U app -d movies_database -f _db_ddl/ddl_movies_database.ddl
+psql -h 127.0.0.1 -U app -d movies_database -f _db_ddl/ddl_movies_database_path.ddl
 
 ### Truncate
 psql -h 127.0.0.1 -U app -d movies_database -f _db_ddl/ddl_truncate.ddl
